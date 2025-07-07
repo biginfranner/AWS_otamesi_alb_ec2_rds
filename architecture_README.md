@@ -87,8 +87,8 @@
 
 ```bash
 #!/bin/bash
-yum update -y
-yum install -y httpd mysql
+dnf update -y #使用するEC2はAmazon Linux 2023(Amazon Linux 2 の場合は"yum"コマンドを使用する)
+dnf install -y httpd mysql　##使用するEC2はAmazon Linux 2023
 systemctl start httpd
 systemctl enable httpd
 echo "Hello from $(hostname)" > /var/www/html/index.html
