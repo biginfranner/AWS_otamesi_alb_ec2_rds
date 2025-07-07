@@ -2,7 +2,7 @@
 
 ## 📌 構成概要
 
-ALB → EC2(Apache) → RDS（MySQL）の3層アーキテクチャをAWS上に構築。
+ALB → EC2(Apache) → RDS（MySQL）の簡単なWebシステムをAWS上に構築。
 
 * **VPC**
 * **サブネット構成**（AZ a / b で以下を作成）
