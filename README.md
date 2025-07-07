@@ -1,29 +1,30 @@
-# AWS_otamesi_alb_ec2_rds
-# AWS ALB-EC2-RDS構成（ポートフォリオ用）
+# AWS ALB-EC2-RDS構成
 
 ## 📌 構成概要
 
 ALB → EC2(Apache) → RDS（MySQL）の3層アーキテクチャをAWS上に構築。
 
-## 📐 ネットワーク設計
+* **VPC**
+* **サブネット構成**（AZ a / b で以下を作成）
 
-- VPC: 10.0.0.0/16
-- Public Subnet: 10.0.0.0/24, 10.0.1.0/24（ALB用）
-- Private Web Subnet: 10.0.10.0/24, 10.0.11.0/24（EC2用）
-- Private DB Subnet: 10.0.20.0/24, 10.0.21.0/24（RDS用）
+  * Public（ALB用）
+  * Private Web（EC2用）
+  * Private DB（RDS用）
+  * Privateサブネットは各AZに1つ配置
+* **IGWあり、NAT Gatewayあり**
+* **EC2はSSMで接続**
+* **Apacheインストール & RDS接続までUserDataで自動化**
 
-## 🔒 セキュリティ設計
+コストを考慮した最小構成です。
+(作成のみでも課金されるサービスがありますのでご注意を)
 
-- ALB: HTTP 80 → 全許可
-- EC2: ALB SGのみ許可
-- RDS: EC2 SGのみ許可
 
-## ⚙️ UserDataスクリプト（EC2）
+[PC] → AWSマネジメントコンソール（SSM） → NAT Gateway経由 → EC2（プライベート）
+プライベートサブネット上のEC2から外部通信を可能にするため、
+パブリックサブネットにNAT Gatewayを配置しました。
+これを経由することで、SSMによるEC2ログインやパッケージのインストールが可能になっています。
 
-```bash
-#!/bin/bash
-yum update -y
-yum install -y httpd mysql
-systemctl start httpd
-systemctl enable httpd
-echo "Hello from $(hostname)" > /var/www/html/index.html
+
+構成簡素化のため、Webサーバー（EC2）とデータベース（RDS）は同一のプライベートサブネットに配置し、共通のルートテーブルを使用しています。
+ルート上は NAT Gateway を経由する設定ですが、RDSは外部通信を行わないため、セキュリティ的な影響はありません。通信制御はセキュリティグループにより厳密に管理されています。
+
