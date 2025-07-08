@@ -54,23 +54,8 @@
  NGWを作成/ElasticIPアドレスアタッチ
  
 
-###  ④ セキュリティグループの作成
+###  ⑤　セキュリティグループの作成
 
-🔸 ALBのSG
-インバウンド
-　＊TCP　80　→0.0.0.0/0
-アウトバウンド
-　＊すべてのトラフィック　→0.0.0.0/0
-🔸 EC2用のセキュリティグループ（EC2-SG）
-インバウンド
-  * TCP 80 → ALBのSGを指定（Web通信）
-アウトバウンド
-  * デフォルトのすべて許可（0.0.0.0/0）
-🔸 RDS用のセキュリティグループ（RDS-SG）
-インバウンド
-  * TCP 3306 → EC2-SGを指定（DB疎通）
-アウトバウンド
-  * デフォルトのすべて許可（0.0.0.0/0）
 #### インバウンド
 | SG名    | 許可内容                  | 備考        |
 | ------ | --------------------- | --------- |
@@ -85,19 +70,19 @@
 
 ---
 
-### 🔹 ⑤ EC2の起動（Webサブネットに）
+###  ⑥ EC2の起動（Webサブネットに）
 
-* **AMI**：Amazon Linux 2 / 2023
+* **AMI**：Amazon Linux  2023
 * **インスタンスタイプ**：t3.micro
 * **Subnet**：Private Subnet A と B
 * **パブリックIPなし**
 * **IAMロール**：`AmazonSSMManagedInstanceCore` をアタッチ
-* **UserData例（Apache）**：
+* **UserData**：
 
 ```bash
 #!/bin/bash
 dnf update -y #使用するEC2はAmazon Linux 2023(Amazon Linux 2 の場合は"yum"コマンドを使用する)
-dnf install -y httpd mysql　##使用するEC2はAmazon Linux 2023
+dnf install -y httpd mysql　#使用するEC2はAmazon Linux 2023
 systemctl start httpd
 systemctl enable httpd
 echo "Hello from $(hostname)" > /var/www/html/index.html
@@ -105,7 +90,7 @@ echo "Hello from $(hostname)" > /var/www/html/index.html
 
 ---
 
-### 🔹 ⑥ RDSの作成（DBサブネットグループに）
+###  ⑦ RDSの作成（時間がかかるのでこの間に進めるのもあり)
 
 * **エンジン**：MySQL
 * **マルチAZ**：任意
@@ -116,7 +101,7 @@ echo "Hello from $(hostname)" > /var/www/html/index.html
 
 ---
 
-### 🔹 ⑦ ALBの作成（パブリックサブネット）
+###  ⑧ ALBの作成（パブリックサブネット）
 
 * **ターゲットグループ**：EC2インスタンスを登録（ポート80）
 * **ALBのSG**：ALB-SG
@@ -125,7 +110,7 @@ echo "Hello from $(hostname)" > /var/www/html/index.html
 
 ---
 
-### 🔹 ⑧ SSMログイン → RDSへの疎通確認
+###  ⑨ SSMログイン → RDSへの疎通確認
 
 ```bash
 # SSMでEC2にログイン後
@@ -135,7 +120,7 @@ SHOW DATABASES;
 
 ---
 
-### 🔹 ⑨ ALBにアクセス → EC2レスポンス確認
+###  ⑩ ALBにアクセス → EC2レスポンス確認
 
 ```bash
 # ブラウザまたはcurlでアクセス
@@ -145,7 +130,7 @@ curl http://<ALB-DNS-Name>
 
 ---
 
-## ✅ 最終確認ポイント
+##  最終確認ポイント
 
 | 経路        | 確認方法         | 成功条件                |
 | --------- | ------------ | ------------------- |
