@@ -1,6 +1,6 @@
 # AWS ALB-EC2-RDS構成
 
-## 📌 構成概要
+##  構成概要
 
 ALB → EC2(Apache) → RDS（MySQL）の簡単なWebシステムをAWS上に構築。
 
