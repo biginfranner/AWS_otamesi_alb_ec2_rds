@@ -5,11 +5,10 @@
 ALB → EC2(Apache) → RDS（MySQL）の簡単なWebシステムをAWS上に構築。
 
 * **VPC**
-* **サブネット構成**（AZ a / b で以下を作成）
+* **サブネット構成**（AZ a / c で以下を作成）
 
   * Public（ALB用）
-  * Private Web（EC2用）
-  * Private DB（RDS用）
+  * Private （EC2/DB用））
   * Privateサブネットは各AZに1つ配置
 * **IGWあり、NAT Gatewayあり**
 * **EC2はSSMで接続**
