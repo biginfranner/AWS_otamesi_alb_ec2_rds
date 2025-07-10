@@ -2,11 +2,10 @@
 ## 構成概要
 
 * **VPC**：10.0.0.0/16
-* **サブネット構成**（AZ a / b で以下を作成）
+* **サブネット構成**（AZ a / c で以下を作成）
 
   * Public（ALB用）
-  * Private Web（EC2用）
-  * Private DB（RDS用）
+  * Private Web（EC2/DB用）
   * Privateサブネットは各AZに1つ配置
 * **IGWあり、NAT Gatewayあり**
 * **EC2からSSMで接続**
@@ -24,11 +23,10 @@
 | --------------- | ------------------- |
 | VPC             | `10.0.0.0/16` |
 | Public Subnet A | `10.0.0.0/24`       |
-| Public Subnet B | `10.0.1.0/24`       |
-| Web Subnet A    | `10.0.10.0/24`      |
-| Web Subnet B    | `10.0.11.0/24`      |
-| DB Subnet A     | `10.0.20.0/24`      |
-| DB Subnet B     | `10.0.21.0/24`      |
+| Public Subnet C | `10.0.1.0/24`       |
+| Private Subnet A    | `10.0.10.0/24`      |
+| Private Subnet C    | `10.0.11.0/24`      |
+
 
 ---
 
@@ -36,10 +34,10 @@
 
 | ルートテーブル  | 関連付けサブネット         | 設定     |
 | -------- | ----------------- | ----------------- |
-| PublicRT | Public Subnet A/B | `0.0.0.0/0 → IGW`     |
-| PublicRT | Public Subnet A/B | `10.0.0.0/16 → local` |
-| PrivateRT| Private Subnet A/B|  `0.0.0.0/0 → NGW`    |
-| PrivateRT| Private Subnet A/B| `10.0.0.0/16 → local` |
+| PublicRT | Public Subnet A/C | `0.0.0.0/0 → IGW`     |
+| PublicRT | Public Subnet A/C | `10.0.0.0/16 → local` |
+| PrivateRT| Private Subnet A/C|  `0.0.0.0/0 → NGW`    |
+| PrivateRT| Private Subnet A/C| `10.0.0.0/16 → local` |
 ---
 
 ### ③ IGWの作成・VPCへのアタッチ
@@ -74,7 +72,7 @@
 
 * **AMI**：Amazon Linux  2023
 * **インスタンスタイプ**：t3.micro
-* **Subnet**：Private Subnet A と B
+* **Subnet**：Private Subnet A と C
 * **パブリックIPなし**
 * **IAMロール**：`AmazonSSMManagedInstanceCore` をアタッチ
 * **UserData**：
@@ -94,7 +92,7 @@ echo "Hello from $(hostname)" > /var/www/html/index.html
 
 * **エンジン**：MySQL
 * **マルチAZ**：任意
-* **DBサブネットグループ**：Private Subnet A/B を指定
+* **DBサブネットグループ**：Private Subnet A/C を指定
 * **セキュリティグループ**：RDS-SG を適用
 * **パブリックアクセス**：**なし**
 * **DB名/ユーザー名/パスワード**：控えておく
@@ -105,7 +103,7 @@ echo "Hello from $(hostname)" > /var/www/html/index.html
 
 * **ターゲットグループ**：EC2インスタンスを登録（ポート80）
 * **ALBのSG**：ALB-SG
-* **サブネット**：Public Subnet A/B
+* **サブネット**：Public Subnet A/C
 * **リスナー**：HTTP（ポート80） → ターゲットグループ
 
 ---
